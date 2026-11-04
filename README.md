@@ -25,8 +25,10 @@ Running the switch builds:
 
 - System settings (dark mode, key repeat, dock, Finder, trackpad)
 - Homebrew apps (casks and CLI tools)
-- Nix user packages (ripgrep, fd, fzf, jq, lazygit, Neovim, Hack Nerd Font)
+- Nix user packages (ripgrep, fd, fzf, jq, lazygit, Neovim, tmux, Hack Nerd Font)
 - Shell (zsh, aliases, starship prompt)
+- Multiplexer (tmux config with the rose-pine moon theme, vi copy mode, and
+  session persistence via resurrect/continuum)
 - Editor (Neovim config with the rose-pine moon theme)
 - Terminal (WezTerm config with the rose-pine moon theme and dimmed unfocused windows)
 - Agent configs (Claude, Codex, opencode all share one AGENTS.md)
@@ -55,7 +57,7 @@ Change the host label or CPU architecture if needed, and read the Homebrew clean
 ./bootstrap.sh
 ```
 
-`bootstrap.sh` does four things, in order:
+`bootstrap.sh` does five things, in order:
 
 1. Installs Determinate Nix, if it isn't already installed.
 2. Symlinks this repo to `~/.dotfiles`.
@@ -63,6 +65,10 @@ Change the host label or CPU architecture if needed, and read the Homebrew clean
 3. Checks the `user` configured in `flake.nix` against your actual macOS username, and offers to fix it for you if they differ.
 4. Runs the first `darwin-rebuild switch`.
    It fetches the `darwin-rebuild` tool from the nix-darwin 26.05 release branch, then applies this repo's locked flake config.
+5. Runs `./ensure-tpm.sh`, which clones `tmux-plugins/tpm` into `~/.tmux/plugins/tpm` if it isn't already there.
+   `tmux.conf` loads TPM with `run-shell`, deliberately *before* its status-bar overrides rather than last, and tmux cannot bootstrap its own plugin manager the way Neovim bootstraps lazy.nvim.
+   `rebuild.sh` runs the same script, because `home.nix` activates the tmux config on every switch and an upgrade can be the first run to make it live.
+   Plugins install on first use: start tmux, press `prefix + I` once, then press `prefix + R` (or restart tmux). The reload is required - `prefix + I` sources each plugin immediately, so rose-pine would otherwise run after the overrides and reset the two-row status bar.
 
 After that, `darwin-rebuild` exists and you're on the normal workflow below.
 
@@ -128,6 +134,8 @@ If you don't use it, just remove it from `brews` in your copy.
   If you clone this repo, you'd silently inherit my agent instructions - edit or delete `home/AGENTS.md` if you don't want that.
 - The `cc` and `co` shell aliases in `home.nix` are high-agency shortcuts: `claude --dangerously-skip-permissions` and `codex --full-auto`.
   They're convenient for me, but know what they do before you use them.
+- tmux session persistence is on by default: `tmux-continuum` saves your sessions every 15 minutes (`@continuum-save-interval '15'`) and restores them on the next tmux start (`@continuum-restore 'on'`), and `@resurrect-capture-pane-contents` puts the full scrollback of every pane into those saves, unencrypted, under `~/.local/share/tmux/resurrect/`.
+  It never leaves your machine. To keep the scrollback out of the saves, unset `@resurrect-capture-pane-contents`; to stop persistence entirely, remove the `tmux-resurrect` and `tmux-continuum` `@plugin` lines along with their options. Both live in `home/.config/tmux/tmux.conf`.
 
 ## Repo tour
 
@@ -184,7 +192,6 @@ Home Manager deliberately does not manage `~/.pi/agent` itself, or Pi authentica
 
 The first time you launch `nvim`, it bootstraps [lazy.nvim](https://github.com/folke/lazy.nvim) by cloning plugins from GitHub.
 That needs network access once; after that it's offline.
-Neovim and WezTerm both use the rose-pine moon theme.
 Neovim keeps italics off and uses a transparent background on macOS, Windows, and WSL so it matches the terminal setup.
 
 ## License

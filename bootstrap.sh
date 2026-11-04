@@ -60,4 +60,7 @@ sudo "$NIX_BIN" run github:nix-darwin/nix-darwin/nix-darwin-26.05#darwin-rebuild
 # If this still fails with "nix: command not found", open a new terminal
 # (Determinate adds nix to new shells' PATH) and re-run ./bootstrap.sh.
 
+echo "==> Step 5: tmux plugin manager"
+"$DIR/ensure-tpm.sh"
+
 echo "==> Done. Use ./rebuild.sh for future changes."
