@@ -61,7 +61,8 @@ sudo "$NIX_BIN" run github:nix-darwin/nix-darwin/nix-darwin-26.05#darwin-rebuild
 # (Determinate adds nix to new shells' PATH) and re-run ./bootstrap.sh.
 
 echo "==> Step 5: tmux plugin manager"
-# tmux.conf ends with `run-shell .../tpm/tpm`, and unlike Neovim (which
+# tmux.conf loads TPM with `run-shell` (deliberately before its status-bar
+# overrides, not last), and unlike Neovim (which
 # self-bootstraps lazy.nvim from init.lua) tmux cannot clone its own plugin
 # manager. Without this, every tmux server start prints "No such file or
 # directory" and none of the plugins load.
@@ -78,6 +79,8 @@ fi
 # install_plugins shells out to tmux, so it would silently install nothing.
 # Like lazy.nvim, which installs on first nvim launch, plugins land on first use:
 echo "    TPM is installed. Start tmux and press prefix + I (Ctrl-b, then"
-echo "    Shift-i) once to fetch the plugins."
+echo "    Shift-i) once to fetch the plugins, then prefix + R to reload."
+echo "    The reload matters: prefix + I sources each plugin immediately, so"
+echo "    rose-pine would otherwise run after tmux.conf's status-bar overrides."
 
 echo "==> Done. Use ./rebuild.sh for future changes."

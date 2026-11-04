@@ -66,7 +66,8 @@ Change the host label or CPU architecture if needed, and read the Homebrew clean
 4. Runs the first `darwin-rebuild switch`.
    It fetches the `darwin-rebuild` tool from the nix-darwin 26.05 release branch, then applies this repo's locked flake config.
 5. Clones `tmux-plugins/tpm` into `~/.tmux/plugins/tpm`, if it isn't already there.
-   `tmux.conf` ends with a `run-shell` of TPM and tmux cannot bootstrap its own plugin manager the way Neovim bootstraps lazy.nvim. Plugins themselves install on first use: start tmux and press `prefix + I` once.
+   `tmux.conf` loads TPM with `run-shell`, deliberately *before* its status-bar overrides rather than last, and tmux cannot bootstrap its own plugin manager the way Neovim bootstraps lazy.nvim.
+   Plugins install on first use: start tmux, press `prefix + I` once, then press `prefix + R` (or restart tmux). The reload is required - `prefix + I` sources each plugin immediately, so rose-pine would otherwise run after the overrides and reset the two-row status bar.
 
 After that, `darwin-rebuild` exists and you're on the normal workflow below.
 
@@ -132,6 +133,8 @@ If you don't use it, just remove it from `brews` in your copy.
   If you clone this repo, you'd silently inherit my agent instructions - edit or delete `home/AGENTS.md` if you don't want that.
 - The `cc` and `co` shell aliases in `home.nix` are high-agency shortcuts: `claude --dangerously-skip-permissions` and `codex --full-auto`.
   They're convenient for me, but know what they do before you use them.
+- tmux session persistence is on by default: `@resurrect-capture-pane-contents` together with `@continuum-save-interval '15'` write the full scrollback of every pane, unencrypted, to `~/.local/share/tmux/resurrect/` every 15 minutes, and restore it on the next tmux start.
+  It never leaves your machine, but if you'd rather it not persist, unset those options in `home/.config/tmux/tmux.conf`.
 
 ## Repo tour
 
