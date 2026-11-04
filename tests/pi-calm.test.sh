@@ -653,7 +653,11 @@ export default function (pi: ExtensionAPI): void {
 }
 TS
 
-  tmux -L "$socket" new-session -d -s "$TMUX_SESSION" -x 100 -y 30 \
+  # -L isolates the socket, not the config: without -f this server would load
+  # ~/.config/tmux/tmux.conf, which this repo now installs. That pulls in TPM,
+  # rose-pine, @continuum-restore and a two-row status bar, contaminating a
+  # height-sensitive capture-pane assertion at -y 30.
+  tmux -L "$socket" -f /dev/null new-session -d -s "$TMUX_SESSION" -x 100 -y 30 \
     "cd '$project' && env PI_CODING_AGENT_DIR='$agent' PI_CODING_AGENT_SESSION_DIR='$fixture/sessions' PI_OFFLINE=1 CALM_SMOKE_MARKERS='$fixture/provider-markers.txt' pi --approve --no-context-files --no-skills --no-prompt-templates -e ./provider.ts"
   for i in $(seq 1 120); do
     tmux -L "$socket" capture-pane -p -t "$TMUX_SESSION" -S -100 >"$fixture/pane" 2>/dev/null || true
