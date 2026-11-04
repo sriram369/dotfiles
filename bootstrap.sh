@@ -60,4 +60,20 @@ sudo "$NIX_BIN" run github:nix-darwin/nix-darwin/nix-darwin-26.05#darwin-rebuild
 # If this still fails with "nix: command not found", open a new terminal
 # (Determinate adds nix to new shells' PATH) and re-run ./bootstrap.sh.
 
+echo "==> Step 5: tmux plugin manager"
+# tmux.conf ends with `run-shell .../tpm/tpm`, and unlike Neovim (which
+# self-bootstraps lazy.nvim from init.lua) tmux cannot clone its own plugin
+# manager. Without this, every tmux server start prints "No such file or
+# directory" and none of the plugins load.
+TPM_DIR="$HOME/.tmux/plugins/tpm"
+if [ -d "$TPM_DIR" ]; then
+  echo "    TPM already present at $TPM_DIR, nothing to do."
+else
+  echo "    Cloning tmux-plugins/tpm into $TPM_DIR"
+  git clone --depth 1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
+  echo "    Installing plugins"
+  "$TPM_DIR/bin/install_plugins" || \
+    echo "    Could not install plugins headlessly; press prefix + I inside tmux."
+fi
+
 echo "==> Done. Use ./rebuild.sh for future changes."
