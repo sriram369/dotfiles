@@ -133,8 +133,8 @@ If you don't use it, just remove it from `brews` in your copy.
   If you clone this repo, you'd silently inherit my agent instructions - edit or delete `home/AGENTS.md` if you don't want that.
 - The `cc` and `co` shell aliases in `home.nix` are high-agency shortcuts: `claude --dangerously-skip-permissions` and `codex --full-auto`.
   They're convenient for me, but know what they do before you use them.
-- tmux session persistence is on by default: `@resurrect-capture-pane-contents` together with `@continuum-save-interval '15'` write the full scrollback of every pane, unencrypted, to `~/.local/share/tmux/resurrect/` every 15 minutes, and restore it on the next tmux start.
-  It never leaves your machine, but if you'd rather it not persist, unset those options in `home/.config/tmux/tmux.conf`.
+- tmux session persistence is on by default: `tmux-continuum` saves your sessions every 15 minutes (`@continuum-save-interval '15'`) and restores them on the next tmux start (`@continuum-restore 'on'`), and `@resurrect-capture-pane-contents` puts the full scrollback of every pane into those saves, unencrypted, under `~/.local/share/tmux/resurrect/`.
+  It never leaves your machine. To keep the scrollback out of the saves, unset `@resurrect-capture-pane-contents`; to stop persistence entirely, remove the `tmux-resurrect` and `tmux-continuum` `@plugin` lines along with their options. Both live in `home/.config/tmux/tmux.conf`.
 
 ## Repo tour
 
@@ -191,7 +191,6 @@ Home Manager deliberately does not manage `~/.pi/agent` itself, or Pi authentica
 
 The first time you launch `nvim`, it bootstraps [lazy.nvim](https://github.com/folke/lazy.nvim) by cloning plugins from GitHub.
 That needs network access once; after that it's offline.
-Neovim and WezTerm both use the rose-pine moon theme.
 Neovim keeps italics off and uses a transparent background on macOS, Windows, and WSL so it matches the terminal setup.
 
 ## License
