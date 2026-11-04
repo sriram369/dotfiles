@@ -71,9 +71,13 @@ if [ -d "$TPM_DIR" ]; then
 else
   echo "    Cloning tmux-plugins/tpm into $TPM_DIR"
   git clone --depth 1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
-  echo "    Installing plugins"
-  "$TPM_DIR/bin/install_plugins" || \
-    echo "    Could not install plugins headlessly; press prefix + I inside tmux."
 fi
+# Deliberately no headless install here. tmux comes from home.packages, which
+# lands in /etc/profiles/per-user/$USER/bin and only reaches PATH in a newly
+# started shell - not the one running bootstrap.sh on a fresh Mac. TPM's
+# install_plugins shells out to tmux, so it would silently install nothing.
+# Like lazy.nvim, which installs on first nvim launch, plugins land on first use:
+echo "    TPM is installed. Start tmux and press prefix + I (Ctrl-b, then"
+echo "    Shift-i) once to fetch the plugins."
 
 echo "==> Done. Use ./rebuild.sh for future changes."
