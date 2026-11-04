@@ -27,11 +27,15 @@ TMP_ROOT=$(dotfiles_test_tmproot pi-calm)
 CALM_DIR="$ROOT/home/.pi/agent/extensions/calm"
 PI_PACKAGE_DIR=${PI_CALM_TEST_PACKAGE_DIR:-"$(npm root -g 2>/dev/null)/@earendil-works/pi-coding-agent"}
 TMUX_SOCKET="pi-calm-test-$$"
+# The TUI smoke test runs its own server on a second socket; cleanup kills both
+# or the smoke server leaks whenever the test fails before its own teardown.
+TMUX_SMOKE_SOCKET="pi-calm-smoke-$$"
 TMUX_SESSION="pi-calm-e2e"
 
 cleanup() {
   if command -v tmux >/dev/null 2>&1; then
     tmux -L "$TMUX_SOCKET" kill-server 2>/dev/null || true
+    tmux -L "$TMUX_SMOKE_SOCKET" kill-server 2>/dev/null || true
   fi
   if [ "${KEEP_TMP:-}" = 1 ]; then
     printf 'kept disposable Pi Calm evidence: %s\n' "$TMP_ROOT" >&2
@@ -594,7 +598,7 @@ test_real_pi_tui_smoke() {
   fixture="$TMP_ROOT/tui-smoke"
   agent="$fixture/agent"
   project="$fixture/project"
-  socket="pi-calm-smoke-$$"
+  socket="$TMUX_SMOKE_SOCKET"
   mkdir -p "$agent/extensions" "$project" "$fixture/captures" "$fixture/sessions"
   capture_tui() {
     local label=$1

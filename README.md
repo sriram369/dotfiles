@@ -65,8 +65,9 @@ Change the host label or CPU architecture if needed, and read the Homebrew clean
 3. Checks the `user` configured in `flake.nix` against your actual macOS username, and offers to fix it for you if they differ.
 4. Runs the first `darwin-rebuild switch`.
    It fetches the `darwin-rebuild` tool from the nix-darwin 26.05 release branch, then applies this repo's locked flake config.
-5. Clones `tmux-plugins/tpm` into `~/.tmux/plugins/tpm`, if it isn't already there.
+5. Runs `./ensure-tpm.sh`, which clones `tmux-plugins/tpm` into `~/.tmux/plugins/tpm` if it isn't already there.
    `tmux.conf` loads TPM with `run-shell`, deliberately *before* its status-bar overrides rather than last, and tmux cannot bootstrap its own plugin manager the way Neovim bootstraps lazy.nvim.
+   `rebuild.sh` runs the same script, because `home.nix` activates the tmux config on every switch and an upgrade can be the first run to make it live.
    Plugins install on first use: start tmux, press `prefix + I` once, then press `prefix + R` (or restart tmux). The reload is required - `prefix + I` sources each plugin immediately, so rose-pine would otherwise run after the overrides and reset the two-row status bar.
 
 After that, `darwin-rebuild` exists and you're on the normal workflow below.
